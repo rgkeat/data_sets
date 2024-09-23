@@ -1,0 +1,163 @@
+---
+title: "TS"
+author: "Richard Gan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Since the data is bounded 0-100 (%) we apply a logit function to unbound them. Reapply the inverse logit after forecast values are generated
+
+```{r}
+require(dplyr)
+require(forecast)
+require(prophet)
+data <- c(
+0.2124184, 0.2205366, 0.1313068, 0.1716916, 0.1972431, 0.1516543, 0.1566173, 0.1541596, 0.1687206, 0.1658250, 0.1526667, 0.1534642, 0.1714693, 0.1853650, 0.1334445, 0.1501413, 0.1437709, 0.1449442, 0.1488097, 0.1323169, 0.1554216, 0.1593677, 0.1614845, 0.1511700, 0.1456393, 0.1586110, 0.1091574, 0.1610505, 0.1168994, 0.1359717, 0.1525381)
+
+```
+
+```{r}
+require(forecast)
+require(prophet)
+
+data <- c(0.2124184, 0.2205366, 0.1313068, 0.1716916, 0.1972431, 0.1516543, 
+          0.1566173, 0.1541596, 0.1687206, 0.1658250, 0.1526667, 0.1534642, 
+          0.1714693, 0.1853650, 0.1334445, 0.1501413, 0.1437709, 0.1449442, 
+          0.1488097, 0.1323169, 0.1554216, 0.1593677, 0.1614845, 0.1511700, 
+          0.1456393, 0.1586110, 0.1091574, 0.1610505, 0.1168994, 0.1359717, 0.1525381)
+
+# Convert to a time series object
+data_ts <- ts(data)
+
+# Apply ETS model
+model <- ets(data_ts)
+
+# Generate forecast for the next 5 periods
+forecast_values <- forecast(model, h = 10)
+
+# Plot the forecast
+plot(forecast_values)
+
+# Print forecast values
+print(forecast_values)
+
+```
+
+```{r}
+data <- c(0.2124184, 0.2205366, 0.1313068, 0.1716916, 0.1972431, 0.1516543, 
+          0.1566173, 0.1541596, 0.1687206, 0.1658250, 0.1526667, 0.1534642, 
+          0.1714693, 0.1853650, 0.1334445, 0.1501413, 0.1437709, 0.1449442, 
+          0.1488097, 0.1323169, 0.1554216, 0.1593677, 0.1614845, 0.1511700, 
+          0.1456393, 0.1586110, 0.1091574, 0.1610505, 0.1168994, 0.1359717, 0.1525381)
+
+# Convert to a time series object
+data_ts <- ts(data)
+
+# Fit ARIMA model
+model <- auto.arima(data_ts)
+
+# Generate forecast for the next 5 periods
+forecast_values <- forecast(model, h = 12)
+
+# Plot forecast
+plot(forecast_values)
+
+# Print forecast values
+print(forecast_values)
+
+```
+
+```{r}
+data <- c(0.2124184, 0.2205366, 0.1313068, 0.1716916, 0.1972431, 0.1516543, 
+          0.1566173, 0.1541596, 0.1687206, 0.1658250, 0.1526667, 0.1534642, 
+          0.1714693, 0.1853650, 0.1334445, 0.1501413, 0.1437709, 0.1449442, 
+          0.1488097, 0.1323169, 0.1554216, 0.1593677, 0.1614845, 0.1511700, 
+          0.1456393, 0.1586110, 0.1091574, 0.1610505, 0.1168994, 0.1359717, 0.1525381)
+
+# Logit transformation function
+logit <- function(p) log(p / (1 - p))
+
+# Apply logit transformation (for bounded data between 0 and 1)
+data_logit <- logit(data)
+
+# Convert to time series
+data_ts <- ts(data_logit)
+
+# Fit ARIMA model
+model <- auto.arima(data_ts)
+
+# Forecast for next 5 periods
+forecast_values_logit <- forecast(model, h = 12)
+
+# Inverse logit transformation function
+inv_logit <- function(x) exp(x) / (1 + exp(x))
+
+# Transform forecasted values back to the original scale
+forecast_values <- inv_logit(forecast_values_logit$mean)
+
+# Plot original data and forecast
+plot(forecast_values_logit, main="Logit-Transformed ARIMA Forecast")
+lines(inv_logit(forecast_values_logit$mean), col="red")
+
+# Print forecast values on original scale
+print(forecast_values)
+
+```
+
+```{r}
+data <- c(0.2124184, 0.2205366, 0.1313068, 0.1716916, 0.1972431, 0.1516543, 
+          0.1566173, 0.1541596, 0.1687206, 0.1658250, 0.1526667, 0.1534642, 
+          0.1714693, 0.1853650, 0.1334445, 0.1501413, 0.1437709, 0.1449442, 
+          0.1488097, 0.1323169, 0.1554216, 0.1593677, 0.1614845, 0.1511700, 
+          0.1456393, 0.1586110, 0.1091574, 0.1610505, 0.1168994, 0.1359717, 
+          0.1525381)
+
+
+```
+
+```{r}
+#logit(0.221)
+#invlogit(-1.259848)
+#install.packages("LaplacesDemon")
+require(prophet)
+require(dplyr)
+require(LaplacesDemon)
+
+data <- c(0.2124184, 0.2205366, 0.1313068, 0.1716916, 0.1972431, 0.1516543, 
+          0.1566173, 0.1541596, 0.1687206, 0.1658250, 0.1526667, 0.1534642, 
+          0.1714693, 0.1853650, 0.1334445, 0.1501413, 0.1437709, 0.1449442, 
+          0.1488097, 0.1323169, 0.1554216, 0.1593677, 0.1614845, 0.1511700, 
+          0.1456393, 0.1586110, 0.1091574, 0.1610505, 0.1168994, 0.1359717, 
+          0.1525381,0.1525381,0.1445141,0.1593359,0.1513390,0.1549555,
+          0.1513015,0.1185000,0.1337000,0.1148000,0.1138000,0.1213000
+          )
+
+data  <- logit(data)
+
+# data frame for actual
+data <- data.frame(ds = seq.Date(from = as.Date("2024-01-01"), by = "months", length.out = length(data)),
+                 y = data)
+
+# Model
+m <- prophet(df = data,interval.width = 0.1)
+
+
+# data frame for model
+future <- make_future_dataframe(m
+                                ,periods = 11
+                                ,freq = "month"
+                                )
+# forecast
+forecast <- predict(m, future)
+
+
+# Plot
+dyplot.prophet(m, forecast)
+```
+
+
+```{r}
+
+
+```
+
